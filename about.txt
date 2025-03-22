@@ -1,0 +1,15 @@
+strings
+
+strings.Contains()
+retorna TRUE ou FALSE
+strings.Contains(texto, "Ola")
+
+
+strings.Index()
+retorna a POSICAO
+strings.Contains(texto, "Ola")
+
+
+strings.ContainsAny()
+retorna se a algum dos CARACTERES APARECE
+strings.ContainsAny(texto, "Ola")
