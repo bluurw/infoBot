@@ -14,12 +14,15 @@ func main(){
 	url = "https://pt.wikipedia.org/wiki/Wikip%C3%A9dia:P%C3%A1gina_principal"
 	response := request(url)
 
-	tag := "div"
-	blocks := collectAllTagBlocks(response, tag)
+	fmt.Println(response)
+
+	tag := "li"
+	blocks := collectSelectTagBlocks(response, tag, "class", "interlanguage-link interwiki-aa mw-list-item")
 
 	for _, block := range blocks {
 		fmt.Println(extractTextTag(block))
 	}
+
 }
 
 // Faz a requisicao
@@ -40,12 +43,20 @@ func request(url string) string {
 	return fmt.Sprintf("Error? Recived code %d", resp.StatusCode)
 }
 
-// Extrai todas tags
+// Extrai correspondencias da tag
 func collectAllTagBlocks(html, tag string) []string {
     regexPattern := fmt.Sprintf(`<%[1]s\b[^>]*>(.*?)</%[1]s>`, tag)
     re := regexp.MustCompile(regexPattern)
     matches := re.FindAllString(html, -1)
+    return matches
+}
 
+// Extrai a tag correspondente
+func collectSelectTagBlocks(html, tag string, class string, value string) []string {
+    regexPattern := fmt.Sprintf(`<%[1]s\b %[2]s\b=%[3]s\b>(.*?)</%[1]s>`, tag, class, value)
+	fmt.Println(regexPattern)
+    re := regexp.MustCompile(regexPattern)
+    matches := re.FindAllString(html, -1)
     return matches
 }
 
@@ -54,7 +65,6 @@ func extractTextTag(html string) string {
     re := regexp.MustCompile(`<[^>]*>`)
     return strings.TrimSpace(re.ReplaceAllString(html, ""))
 }
-
 
 /*
 func extractTextTagS(html string) []string {
