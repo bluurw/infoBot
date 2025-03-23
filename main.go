@@ -14,18 +14,36 @@ func main(){
 	url = "https://pt.wikipedia.org/wiki/Wikip%C3%A9dia:P%C3%A1gina_principal"
 	response := request(url)
 
-	fmt.Println(response)
+	/*
+	response := `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Página principal</title>
+    </head>
+    <body>
+		<div class="main-page-responsive-columns main-page-first-row" id="example">
+    		Content inside the tag.
+		</div>
+        <h1>Bem-vindo</h1>
+    </body>
+    </html>
+    `
+	*/
 
-	tag := "li"
-	blocks := collectSelectTagBlocks(response, tag, "class", "interlanguage-link interwiki-aa mw-list-item")
+	tag := "div"
+	//blocks := findAll(response, tag)
+	blocks := findSelect(response, tag, "class", "main-page-block-contents")
 
 	for _, block := range blocks {
-		fmt.Println(extractTextTag(block))
+		fmt.Println()
+		fmt.Println()
+		fmt.Println()
+		fmt.Println(block)
 	}
-
 }
 
-// Faz a requisicao
+// requisicao
 func request(url string) string {
 	resp, err := http.Get(url)
 	if err != nil {
@@ -43,18 +61,19 @@ func request(url string) string {
 	return fmt.Sprintf("Error? Recived code %d", resp.StatusCode)
 }
 
-// Extrai correspondencias da tag
-func collectAllTagBlocks(html, tag string) []string {
-    regexPattern := fmt.Sprintf(`<%[1]s\b[^>]*>(.*?)</%[1]s>`, tag)
+// Extrai todas as tags
+func findAll(html, tag string) []string {
+	//regexPattern := fmt.Sprintf(`(?s)<%[1]s\b[^/>]*/>`, tag)
+	regexPattern := fmt.Sprintf(`(?s)<%[1]s\b[^>]*>(.*?)</%[1]s>`, tag) //	self-auto tags
     re := regexp.MustCompile(regexPattern)
+	fmt.Println(re)
     matches := re.FindAllString(html, -1)
     return matches
 }
 
-// Extrai a tag correspondente
-func collectSelectTagBlocks(html, tag string, class string, value string) []string {
-    regexPattern := fmt.Sprintf(`<%[1]s\b %[2]s\b=%[3]s\b>(.*?)</%[1]s>`, tag, class, value)
-	fmt.Println(regexPattern)
+// Extrai a tag selecionada
+func findSelect(html, tag string, attribute string, value string) []string {
+	regexPattern := fmt.Sprintf(`(?s)<%[1]s\b[^>]*%[2]s=["']%s["'][^>]*>(.*?)</%[1]s>`, tag, attribute, value)
     re := regexp.MustCompile(regexPattern)
     matches := re.FindAllString(html, -1)
     return matches
@@ -63,34 +82,6 @@ func collectSelectTagBlocks(html, tag string, class string, value string) []stri
 // Extrai o texto de cada tag
 func extractTextTag(html string) string {
     re := regexp.MustCompile(`<[^>]*>`)
-    return strings.TrimSpace(re.ReplaceAllString(html, ""))
+    text := strings.TrimSpace(re.ReplaceAllString(html, ""))
+	return text
 }
-
-/*
-func extractTextTagS(html string) []string {
-	tags := []string{"div", "span"}
-	texts := []string{}
-	for {
-		for _, tag := range(tags) {
-			if strings.Contains(html, tag) {
-				fmt.Println(html)
-				regexPattern := fmt.Sprintf(`<%[1]s\b[^>]*>(.*?)</%[1]s>`, tag)
-				re := regexp.MustCompile(regexPattern)
-
-				// Encontra todas as correspondências
-				matches := re.FindAllStringSubmatch(html, -1)
-
-				// Extrair apenas o conteúdo interno da tag
-				for _, match := range matches {
-					if len(match) > 1 {
-						texts = append(texts, match[1]) // match[1] contém o conteúdo interno
-					}
-				}
-			} else {
-				break
-			}
-		}
-	}
-    return texts
-}
-*/
