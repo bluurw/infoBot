@@ -14,7 +14,7 @@ func main(){
 	url = "https://pt.wikipedia.org/wiki/Wikip%C3%A9dia:P%C3%A1gina_principal"
 	response := request(url)
 
-	tag := "div"
+	tag := "img"
 	//attribute := "class"
 	//value := "main-page-block-contents"
 	//blocks := findAll(response, tag, &attribute, &value)
@@ -46,41 +46,33 @@ func request(url string) string {
 	return fmt.Sprintf("Error? Recived code %d", resp.StatusCode)
 }
 
-/*
-// Extrai todas as tags
-func findAll(html, tag string) []string {
-	regexPattern := fmt.Sprintf(`(?s)<%[1]s\b[^>]*>(.*?)</%[1]s>`, tag)
-    re := regexp.MustCompile(regexPattern)
-	fmt.Println(re)
-    matches := re.FindAllString(html, -1)
-    return matches
-}
-*/
-
 // Extrai a tag selecionada
 func findAll(html, tag string, attribute *string, value *string) []string {
+    var tagList = []string{"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
     var regexPattern string
 
-    // Check if both attribute and value are provided
-    if attribute != nil && value != nil {
-        // Dereference pointers to access their values
-        regexPattern = fmt.Sprintf(`(?s)<%[1]s\b[^>]*%[2]s=["']%s["'][^>]*>(.*?)</%[1]s>`, tag, *attribute, *value)
-    } else {
-        // Default pattern for tags without attributes
-        regexPattern = fmt.Sprintf(`(?s)<%[1]s\b[^>]*>(.*?)</%[1]s>`, tag)
+    isSelfClosing := false
+    for _, iTag := range tagList {
+        if tag == iTag {
+            isSelfClosing = true
+            break
+        }
     }
 
-    // Compile the regex
+    if isSelfClosing {
+        regexPattern = fmt.Sprintf(`(?s)<%[1]s\b[^>]*\/>`, tag)
+    } else {
+        if attribute != nil && value != nil {
+            regexPattern = fmt.Sprintf(`(?s)<%[1]s\b[^>]*%[2]s=["']%s["'][^>]*>(.*?)</%[1]s>`, tag, *attribute, *value)
+        } else {
+            regexPattern = fmt.Sprintf(`(?s)<%[1]s\b[^>]*>(.*?)</%[1]s>`, tag)
+        }
+    }
     re := regexp.MustCompile(regexPattern)
-
-    // Find all matches
+    fmt.Println(re)
     matches := re.FindAllString(html, -1)
-
     return matches
 }
-
-
-//regexPattern := fmt.Sprintf(`(?s)<%[1]s\b[^/>]*/>`, tag) //self-auto tags
 
 // Extrai o texto de cada tag
 func extractTextTag(html string) string {
