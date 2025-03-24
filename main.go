@@ -15,10 +15,10 @@ func main(){
 	response := request(url)
 
 	tag := "img"
-	//attribute := "class"
-	//value := "main-page-block-contents"
-	//blocks := findAll(response, tag, &attribute, &value)
-	blocks := findAll(response, tag, nil, nil)
+	attribute := "alt"
+	value := "Wikivoyage"
+	blocks := findAll(response, tag, &attribute, &value)
+	//blocks := findAll(response, tag, nil, nil)
 
 	for _, block := range blocks {
 		fmt.Println()
@@ -60,7 +60,11 @@ func findAll(html, tag string, attribute *string, value *string) []string {
     }
 
     if isSelfClosing {
-        regexPattern = fmt.Sprintf(`(?s)<%[1]s\b[^>]*\/>`, tag)
+		if attribute != nil && value != nil {
+            regexPattern = fmt.Sprintf(`(?s)<%[1]s\b[^>]*\b%[2]s=["']%s["'][^>]*\/>`, tag, *attribute, *value)
+		} else {
+			regexPattern = fmt.Sprintf(`(?s)<%[1]s\b[^>]*\/>`, tag)
+		}
     } else {
         if attribute != nil && value != nil {
             regexPattern = fmt.Sprintf(`(?s)<%[1]s\b[^>]*%[2]s=["']%s["'][^>]*>(.*?)</%[1]s>`, tag, *attribute, *value)
@@ -69,7 +73,6 @@ func findAll(html, tag string, attribute *string, value *string) []string {
         }
     }
     re := regexp.MustCompile(regexPattern)
-    fmt.Println(re)
     matches := re.FindAllString(html, -1)
     return matches
 }
