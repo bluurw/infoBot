@@ -14,17 +14,19 @@ func main(){
 	url = "https://pt.wikipedia.org/wiki/Wikip%C3%A9dia:P%C3%A1gina_principal"
 	response := request(url)
 
-	tag := "img"
-	attribute := "alt"
-	value := "Wikivoyage"
-	blocks := findAll(response, tag, &attribute, &value)
-	//blocks := findAll(response, tag, nil, nil)
+	tag := "div"
+	//attribute := "alt"
+	//value := "Wikivoyage"
+	//blocks := findAll(response, tag, &attribute, &value)
+	blocks := findAll(response, tag, nil, nil)
 
 	for _, block := range blocks {
 		fmt.Println()
 		fmt.Println()
 		fmt.Println()
-		fmt.Println(block)
+		result := extractTextTag(block)
+		result = clearBlockBlanck(result)
+		fmt.Println(result)
 	}
 }
 
@@ -82,4 +84,11 @@ func extractTextTag(html string) string {
     re := regexp.MustCompile(`<[^>]*>`)
     text := strings.TrimSpace(re.ReplaceAllString(html, ""))
 	return text
+}
+
+// Substitui espacos em branco
+func clearBlockBlanck(term string) string {
+	re := regexp.MustCompile(`\r?\n`)
+	result := re.ReplaceAllString(term, "")
+	return result
 }
