@@ -12,22 +12,28 @@ func main(){
 	var url string
 
 	url = "https://pt.wikipedia.org/wiki/Wikip%C3%A9dia:P%C3%A1gina_principal"
-	response := request(url)
+	soup := request(url)
+
+	//blocks := findAll(soup, tag, nil, nil)
 
 	tag := "div"
-	//attribute := "alt"
-	//value := "Wikivoyage"
-	//blocks := findAll(response, tag, &attribute, &value)
-	blocks := findAll(response, tag, nil, nil)
+	attribute := "class"
+	
+	value_heading := "main-page-block-heading"
+	block_heading := findAll(soup, tag, &attribute, &value_heading)
 
-	for _, block := range blocks {
-		fmt.Println()
-		fmt.Println()
-		fmt.Println()
-		result := extractTextTag(block)
-		result = clearBlockBlanck(result)
-		fmt.Println(result)
+	value_content := "main-page-block-contents"
+	block_content := findAll(soup, tag, &attribute, &value_content)
+	
+	fmt.Println(extractTextTag(block_heading[2]))
+	fmt.Println(extractTextTag(block_content[2]))
+	fmt.Println()
+
+	/*
+	for _, block := range block_content {
+		fmt.Println(extractTextTag(block))
 	}
+	*/
 }
 
 // requisicao
